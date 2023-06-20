@@ -1,10 +1,11 @@
 import asyncHandler from 'express-async-handler';
+import { Todo } from '../models/todoModel.js';
 // @desc GET all notes
 //@Route GET /api/notes
 //@access Public
 
 export const getAllNotes = asyncHandler(async (req, res) => {
-    res.status(200).send('Get All Notes');
+    res.status(200).json('Get All Notes');
 });
 
 // @desc GET all notes
@@ -12,7 +13,12 @@ export const getAllNotes = asyncHandler(async (req, res) => {
 //@access Public
 
 export const getSingleNote = asyncHandler(async (req, res) => {
-    res.status(200).send('Get Single Note');
+    const todo = await Todo.findById(req.params.id)
+    if (!todo) {
+        res.status(404)
+        throw new Error('Note not found')
+    }
+    res.status(200).json(todo);
 });
 
 // @desc Create a new note
@@ -20,12 +26,19 @@ export const getSingleNote = asyncHandler(async (req, res) => {
 //@access Public
 
 export const createNote = asyncHandler(async (req, res) => {
-    const { name } = req.body
+    const { title, description, priority } = req.body
 
-    if (!name) {
-        res.status(400).send('Please provide a name');
+    if (!title || !description) {
+        res.status(400)
+        throw new Error('Please fill all fields')
     }
-    res.status(201).send('Save Note');
+
+    const note = await Todo.create({
+        title,
+        description,
+        priority
+    })
+    res.status(201).json(note);
 })
 
 // @desc Create a new note
@@ -33,7 +46,18 @@ export const createNote = asyncHandler(async (req, res) => {
 //@access Public
 
 export const updateNote = asyncHandler(async (req, res) => {
-    res.status(200).send('Update Note');
+    const todo = await Todo.findById(req.params.id)
+    if (!todo) {
+        res.status(404)
+        throw new Error('Note not found')
+    }
+
+    const updatedTodo = await Todo.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { new: true }
+    )
+    res.status(200).json(updatedTodo);
 });
 
 // @desc Create a new note
@@ -41,5 +65,12 @@ export const updateNote = asyncHandler(async (req, res) => {
 //@access Public
 
 export const deleteNote = asyncHandler(async (req, res) => {
-    res.status(200).send('Delete Note');
+    const todo = await Todo.findById(req.params.id)
+    if (!todo) {
+        res.status(404)
+        throw new Error('Note not found')
+    }
+
+    await Todo.remove()
+    res.status(200).json(todo);
 });
