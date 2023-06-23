@@ -3,6 +3,7 @@ import router from './routes/notesRoute.js';
 import dotenv from 'dotenv';
 import { errorHandler } from './middleware/errorHandler.js';
 import { connectDB } from './config/dbConnection.js';
+import userRouter from './routes/userRoute.js';
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 
 app.use('/api/notes', router);
+app.use('/api/user', userRouter);
 app.use(errorHandler)
 
 app.listen(PORT, () => {

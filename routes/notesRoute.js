@@ -1,6 +1,9 @@
 import express from 'express';
 const router = express.Router();
 import { createNote, getAllNotes, getSingleNote, updateNote, deleteNote } from '../controllers/notesController.js';
+import { validateUserToken } from '../middleware/validateUserToken.js';
+
+router.use(validateUserToken)
 
 router.route('/')
   .get(getAllNotes)

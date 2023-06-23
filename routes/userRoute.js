@@ -1,9 +1,16 @@
 import express from 'express';
-const router = express.Router();
+import { getCurrentUser, loginUser, registerUser } from '../controllers/userController.js';
+import { validateUserToken } from '../middleware/validateUserToken.js';
+const userRouter = express.Router();
 
 
-router.route('/register').get(getAllNotes);
-router.route('/login').post(createNote);
-router.route('/current').get(getSingleNote);
+userRouter.route('/register').post(registerUser);
+userRouter.route('/login').post(loginUser);
+userRouter.route('/current').get(validateUserToken,getCurrentUser);
 
-export default router;
+
+// userRouter.route('/current',(req, res) => {
+
+// });
+
+export default userRouter;

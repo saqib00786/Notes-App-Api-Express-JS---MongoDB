@@ -5,7 +5,10 @@ import { Todo } from '../models/todoModel.js';
 //@access Public
 
 export const getAllNotes = asyncHandler(async (req, res) => {
-    res.status(200).json('Get All Notes');
+    const todos = await Todo.find({
+        user_id: req.user._id
+    })
+    res.status(200).json(todos);
 });
 
 // @desc GET all notes
@@ -36,7 +39,8 @@ export const createNote = asyncHandler(async (req, res) => {
     const note = await Todo.create({
         title,
         description,
-        priority
+        priority,
+        user_id: req.user._id
     })
     res.status(201).json(note);
 })
@@ -50,6 +54,11 @@ export const updateNote = asyncHandler(async (req, res) => {
     if (!todo) {
         res.status(404)
         throw new Error('Note not found')
+    }
+
+    if (todo.user_id.toString() !== req.user._id.toString()) {
+        res.status(401)
+        throw new Error('You are not authorized to delete this note')
     }
 
     const updatedTodo = await Todo.findByIdAndUpdate(
@@ -71,6 +80,10 @@ export const deleteNote = asyncHandler(async (req, res) => {
         throw new Error('Note not found')
     }
 
-    await Todo.remove()
+    if (todo.user_id.toString() !== req.user._id.toString()) {
+        res.status(401)
+        throw new Error('You are not authorized to delete this note')
+    }
+    await Todo.deleteOne({ _id: req.params.id })
     res.status(200).json(todo);
 });
